@@ -646,6 +646,36 @@ html.dark .bgv-tint{background:rgba(8,10,35,.22)}
 html.has-video .bgv{opacity:1}
 html.has-video .magic{display:none}
 html.has-video body{background:#000}
+
+/* ===== performance + mobile polish ===== */
+.glass{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+/* over a moving video, live blur re-renders every frame: use solid frosted panels instead */
+html.has-video .glass,html.has-video .btn.gh,html.has-video .inp{backdrop-filter:none;-webkit-backdrop-filter:none}
+html.has-video{--glass:rgba(255,255,255,.74);--glass2:rgba(255,255,255,.56)}
+html.has-video.dark{--glass:rgba(42,46,112,.74);--glass2:rgba(16,18,58,.66)}
+html.has-video .modal,html.has-video .pal{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(10,14,45,.55)}
+@media (max-width:900px){
+  .glass,.btn.gh,.inp,.modal,.pal,.overlay.show{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  :root{--glass:rgba(255,255,255,.78);--glass2:rgba(255,255,255,.62)}
+  html.dark{--glass:rgba(42,46,112,.82);--glass2:rgba(16,18,58,.74)}
+  .overlay.show{background:rgba(8,10,35,.55)}
+  .side{z-index:60;background:linear-gradient(180deg,#ffffff,color-mix(in srgb,var(--sky2) 35%,#fff))!important}
+  html.dark .side{background:linear-gradient(180deg,#262a6e,#17194a)!important}
+  .bar i::after{animation:none;display:none}
+  .glass{box-shadow:0 8px 22px -12px rgba(10,10,40,.45)}
+}
+@media (max-width:520px){
+  .app{padding:10px 10px 90px;gap:12px}
+  .top{padding:8px 10px;gap:8px;border-radius:18px}
+  .top h1{font-size:18px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .card{padding:14px}
+  .g4{gap:10px}
+  .stat{gap:9px}
+  .stkr{width:38px}
+  .stat b{font-size:11.5px;line-height:1.2}
+  .stat .v{font-size:18px}
+  .bar{margin-top:10px}
+}
 </style>
 </head>
 <body>
@@ -672,8 +702,9 @@ html.has-video body{background:#000}
     <ellipse cx="80" cy="170" rx="160" ry="60"/><ellipse cx="300" cy="180" rx="200" ry="70"/><ellipse cx="560" cy="175" rx="180" ry="55"/>
     <ellipse cx="820" cy="182" rx="220" ry="70"/><ellipse cx="1090" cy="172" rx="190" ry="62"/><ellipse cx="1340" cy="178" rx="200" ry="70"/></g></svg>
 </div>
-<div class="overlay" id="overlay" data-act="closeMenu"></div>
 <div class="app">
+<div class="overlay" id="overlay" data-act="closeMenu"></div>
+
   <aside class="side glass" id="side"></aside>
   <main class="main">
     <header class="top glass">
