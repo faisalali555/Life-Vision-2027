@@ -676,6 +676,22 @@ html.has-video .modal,html.has-video .pal{backdrop-filter:none;-webkit-backdrop-
   .stat .v{font-size:18px}
   .bar{margin-top:10px}
 }
+
+/* ===== smooth mobile: video always covers, fewer running animations ===== */
+html{scroll-behavior:auto}
+.bgv{top:0;left:0;right:0;bottom:auto;height:100vh;height:100lvh;background:transparent}
+html.has-video body{background:linear-gradient(180deg,var(--sky1),var(--sky3))}
+@media (max-width:900px),(pointer:coarse){
+  .rv{opacity:1!important;transform:none!important}
+  .hero *,.hero::before,.hero::after,.stk-eye,.totop.show,.aurora,.sprog::after{animation:none!important}
+  .card,.glass{transition:none}
+  .bgv video{transform:none}
+}
+
+/* sticky top bar stays readable without blur */
+@media (max-width:900px),(pointer:coarse){.top{background:linear-gradient(180deg,#ffffff,color-mix(in srgb,var(--sky2) 30%,#fff))!important}html.dark .top{background:linear-gradient(180deg,#262a6e,#1d2058)!important}}
+html.has-video .top{background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(255,255,255,.86))}
+html.has-video.dark .top{background:linear-gradient(180deg,rgba(38,42,110,.96),rgba(26,28,80,.94))}
 </style>
 </head>
 <body>
@@ -1194,9 +1210,10 @@ function Smooth(getEl){
  const loop=()=>{st.cur+=(st.tgt-st.cur)*0.075;if(Math.abs(st.tgt-st.cur)<0.5){st.cur=st.tgt;set(st.cur);st.raf=0;return}set(st.cur);st.raf=requestAnimationFrame(loop)};
  const go=v=>{if(!st.raf)st.cur=st.tgt=get();st.tgt=Math.max(0,Math.min(max(),v(st.tgt)));if(!st.raf)st.raf=requestAnimationFrame(loop)};
  return{wheel:dy=>go(t=>t+dy),to:y=>{if(reduce){set(y);return}go(()=>y)},can:()=>max()>1}}
-const winS=Smooth(null),sideS=Smooth(()=>side);
+const LITE=matchMedia('(max-width:900px)').matches||matchMedia('(pointer:coarse)').matches;
+const winS={to:y=>scrollTo({top:y,behavior:reduce||LITE?'auto':'smooth'}),wheel:()=>{},can:()=>false},_winS0=Smooth(null),sideS=Smooth(()=>side);
 window.addEventListener('wheel',e=>{
- if(reduce||e.ctrlKey||Math.abs(e.deltaX)>Math.abs(e.deltaY))return;
+ if(true||reduce||e.ctrlKey||Math.abs(e.deltaX)>Math.abs(e.deltaY))return;
  const t=e.target;if(t.closest&&t.closest('textarea,select,.plist,.mbox,.ppanel,.modal.show,.pal.show'))return;
  const dy=e.deltaY*(e.deltaMode===1?36:e.deltaMode===2?innerHeight:1);
  if(t.closest&&t.closest('#side')&&sideS.can()){e.preventDefault();sideS.wheel(dy*.9);return}
@@ -1206,6 +1223,7 @@ const sprog=document.getElementById('sprog'),totop=document.getElementById('toto
 let ticking=false;
 function onScroll(){ticking=false;const y=scrollY,h=document.documentElement.scrollHeight-innerHeight,p=h>0?y/h:0;
  sprog.style.width=(p*100)+'%';sprog.style.opacity=h>10?1:0;totop.classList.toggle('show',y>350);
+ if(LITE||document.documentElement.classList.contains('has-video'))return;
  auroras.forEach((a,i)=>a.style.translate=`0 ${-y*(0.06+i*0.05)}px`);
  const tx=document.querySelector('.hero .txt');if(tx){tx.style.translate=`0 ${y*0.25}px`;tx.style.opacity=Math.max(0,1-y/320)}}
 addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(onScroll)}},{passive:true});
@@ -1214,7 +1232,7 @@ side.addEventListener('scroll',sideEnd,{passive:true});addEventListener('resize'
 /* reveal-on-scroll */
 const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(en=>{if(!en.isIntersecting)return;const el=en.target;el.classList.add('in');io.unobserve(el);
  setTimeout(()=>{el.classList.remove('rv','in');el.style.transitionDelay=''},1000+(parseFloat(el.style.transitionDelay)||0)*1000)}),{threshold:.06,rootMargin:'0px 0px -20px 0px'}):null;
-function reveal(){if(reduce||!io)return;let i=0;document.querySelectorAll('#view .hero,#view .card,#view .vcard,#view .note,#view .day').forEach(el=>{el.classList.add('rv');
+function reveal(){if(reduce||!io||LITE)return;let i=0;document.querySelectorAll('#view .hero,#view .card,#view .vcard,#view .note,#view .day').forEach(el=>{el.classList.add('rv');
  const vis=el.getBoundingClientRect().top<innerHeight;el.style.transitionDelay=(vis?Math.min(i++*0.07,0.6):0.05)+'s';io.observe(el)})}
 /* auto day/night check every minute */
 setInterval(()=>{if(S.mode==='auto'&&document.documentElement.classList.contains('dark')!==isDark()){render();toast(isDark()?'🌙 Good evening — night mode on':'☀️ Good morning — day mode on')}},60000);
